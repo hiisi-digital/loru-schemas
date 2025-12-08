@@ -6,6 +6,18 @@ use serde::{Deserialize, Serialize};
 use serde_json::Value;
 
 #[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
+pub struct LoruConfigLibItem {
+    /// Library/package name.
+    pub name: String,
+    /// Relative path to the library root.
+    pub path: String,
+    /// Library type for publishing.
+    pub kind: String,
+    /// Publish target (e.g., jsr, crates.io).
+    pub publish: Option<String>,
+}
+
+#[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
 pub struct LoruConfigMeta {
     /// Default schema version for entries (semver or range).
     #[serde(rename = "schema_version")]
@@ -66,6 +78,8 @@ pub struct LoruConfigTaskItem {
 
 #[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
 pub struct LoruConfig {
+    /// Libraries/packages within this workspace that can be published.
+    pub lib: Option<Vec<LoruConfigLibItem>>,
     pub meta: Option<LoruConfigMeta>,
     pub workspace: Option<LoruConfigWorkspace>,
     /// Plugin entries in this workspace/project.

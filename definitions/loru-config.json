@@ -4,6 +4,21 @@
   "type": "object",
   "additionalProperties": false,
   "properties": {
+    "lib": {
+      "type": "array",
+      "description": "Libraries/packages within this workspace that can be published.",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["name", "path", "kind"],
+        "properties": {
+          "name": { "type": "string", "description": "Library/package name." },
+          "path": { "type": "string", "description": "Relative path to the library root." },
+          "kind": { "type": "string", "enum": ["deno", "rust"], "description": "Library type for publishing." },
+          "publish": { "type": "string", "description": "Publish target (e.g., jsr, crates.io)." }
+        }
+      }
+    },
     "meta": {
       "type": "object",
       "additionalProperties": false,
