@@ -1,0 +1,107 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "LoruConfig",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "meta": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "schema_version": {
+          "type": "string",
+          "description": "Default schema version for entries (semver or range)."
+        }
+      }
+    },
+    "workspace": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "members": {
+          "type": "array",
+          "description": "Paths to member projects included in this workspace.",
+          "items": { "type": "string" }
+        }
+      }
+    },
+    "plugin": {
+      "type": "array",
+      "description": "Plugin entries in this workspace/project.",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["id", "name"],
+        "properties": {
+          "id": {
+            "type": "string",
+            "pattern": "^[a-z0-9-]+$",
+            "description": "Unique slug for the plugin (lowercase, kebab-case)."
+          },
+          "name": {
+            "type": "string",
+            "description": "Human-readable name for the plugin."
+          },
+          "path": {
+            "type": "string",
+            "description": "Relative path to the plugin project root.",
+            "default": "."
+          },
+          "entrypoint": {
+            "type": "string",
+            "description": "Path to the plugin entry module.",
+            "default": "mod.ts"
+          },
+          "schema_version": {
+            "type": "string",
+            "description": "Schema version/range to validate this plugin metadata."
+          }
+        }
+      }
+    },
+    "page": {
+      "type": "array",
+      "description": "Tenant/page entries in this workspace/project.",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["id", "name"],
+        "properties": {
+          "id": {
+            "type": "string",
+            "pattern": "^[a-z0-9-]+$",
+            "description": "Unique slug for the tenant/page (lowercase, kebab-case)."
+          },
+          "name": {
+            "type": "string",
+            "description": "Display name for the tenant/page."
+          },
+          "path": {
+            "type": "string",
+            "description": "Relative path to the tenant project root.",
+            "default": "."
+          },
+          "entrypoint": {
+            "type": "string",
+            "description": "Entry module for this tenant/page.",
+            "default": "main.ts"
+          },
+          "schema_version": {
+            "type": "string",
+            "description": "Schema version/range to validate this tenant metadata."
+          },
+          "domains": {
+            "type": "array",
+            "description": "Primary domains associated with this tenant/page.",
+            "items": { "type": "string" }
+          },
+          "locales": {
+            "type": "array",
+            "description": "Supported locales.",
+            "items": { "type": "string" }
+          }
+        }
+      }
+    }
+  }
+}

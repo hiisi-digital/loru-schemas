@@ -1,6 +1,6 @@
 {
   "name": "@loru/schemas",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "exports": {
     ".": "./deno/mod.ts"
   },
@@ -10,7 +10,9 @@
   },
   "lint": {
     "rules": {
-      "tags": ["recommended"]
+      "tags": [
+        "recommended"
+      ]
     }
   },
   "fmt": {

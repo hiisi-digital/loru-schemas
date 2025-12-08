@@ -6,58 +6,59 @@ use serde::{Deserialize, Serialize};
 use serde_json::Value;
 
 #[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
-pub struct PluginMetadata {
+pub struct LoruConfigMeta {
+    /// Default schema version for entries (semver or range).
+    #[serde(rename = "schema_version")]
+    pub schema_version: Option<String>,
+}
+
+#[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
+pub struct LoruConfigWorkspace {
+    /// Paths to member projects included in this workspace.
+    pub members: Option<Vec<String>>,
+}
+
+#[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
+pub struct LoruConfigPluginItem {
     /// Unique slug for the plugin (lowercase, kebab-case).
     pub id: String,
     /// Human-readable name for the plugin.
     pub name: String,
-    /// Plugin version in semver format.
-    pub version: Option<String>,
-    /// Short description of what the plugin does.
-    pub description: Option<String>,
-    /// Plugin author or maintainer.
-    pub author: Option<String>,
-    /// License identifier (SPDX).
-    pub license: Option<String>,
-    /// Template version/tag this plugin was scaffolded from.
-    #[serde(rename = "template_version")]
-    pub template_version: Option<String>,
+    /// Relative path to the plugin project root.
+    pub path: Option<String>,
     /// Path to the plugin entry module.
-    pub entry: Option<String>,
-    /// Capabilities the plugin requests.
-    pub permissions: Option<Vec<String>>,
-    /// Free-form labels for categorization.
-    pub tags: Option<Vec<String>>,
-    /// Plugin-specific configuration values.
-    pub config: Option<std::collections::HashMap<String, serde_json::Value>>,
+    pub entrypoint: Option<String>,
+    /// Schema version/range to validate this plugin metadata.
+    #[serde(rename = "schema_version")]
+    pub schema_version: Option<String>,
 }
 
 #[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
-pub struct TenantMetadataPluginsItem {
-    /// Plugin slug.
+pub struct LoruConfigPageItem {
+    /// Unique slug for the tenant/page (lowercase, kebab-case).
     pub id: String,
-    /// Pinned version or semver range.
-    pub version: Option<String>,
-    /// Whether the plugin is enabled.
-    pub enabled: Option<bool>,
-}
-
-#[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
-pub struct TenantMetadata {
-    /// Unique slug for the tenant (lowercase, kebab-case).
-    pub id: String,
-    /// Display name for the tenant.
+    /// Display name for the tenant/page.
     pub name: String,
-    /// Primary domains associated with this tenant.
+    /// Relative path to the tenant project root.
+    pub path: Option<String>,
+    /// Entry module for this tenant/page.
+    pub entrypoint: Option<String>,
+    /// Schema version/range to validate this tenant metadata.
+    #[serde(rename = "schema_version")]
+    pub schema_version: Option<String>,
+    /// Primary domains associated with this tenant/page.
     pub domains: Option<Vec<String>>,
-    /// Default locale for content and UI.
-    #[serde(rename = "default_locale")]
-    pub default_locale: Option<String>,
-    /// Additional supported locales.
+    /// Supported locales.
     pub locales: Option<Vec<String>>,
-    /// Plugins enabled for this tenant.
-    pub plugins: Option<Vec<TenantMetadataPluginsItem>>,
-    /// Template version/tag this tenant was scaffolded from.
-    #[serde(rename = "template_version")]
-    pub template_version: Option<String>,
 }
+
+#[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
+pub struct LoruConfig {
+    pub meta: Option<LoruConfigMeta>,
+    pub workspace: Option<LoruConfigWorkspace>,
+    /// Plugin entries in this workspace/project.
+    pub plugin: Option<Vec<LoruConfigPluginItem>>,
+    /// Tenant/page entries in this workspace/project.
+    pub page: Option<Vec<LoruConfigPageItem>>,
+}
+
