@@ -1,0 +1,62 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "TenantMetadata",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["id", "name"],
+  "properties": {
+    "id": {
+      "type": "string",
+      "pattern": "^[a-z0-9-]+$",
+      "description": "Unique slug for the tenant (lowercase, kebab-case)."
+    },
+    "name": {
+      "type": "string",
+      "description": "Display name for the tenant."
+    },
+    "domains": {
+      "type": "array",
+      "description": "Primary domains associated with this tenant.",
+      "items": { "type": "string" }
+    },
+    "default_locale": {
+      "type": "string",
+      "description": "Default locale for content and UI.",
+      "default": "en"
+    },
+    "locales": {
+      "type": "array",
+      "description": "Additional supported locales.",
+      "items": { "type": "string" }
+    },
+    "plugins": {
+      "type": "array",
+      "description": "Plugins enabled for this tenant.",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["id"],
+        "properties": {
+          "id": {
+            "type": "string",
+            "pattern": "^[a-z0-9-]+$",
+            "description": "Plugin slug."
+          },
+          "version": {
+            "type": "string",
+            "description": "Pinned version or semver range."
+          },
+          "enabled": {
+            "type": "boolean",
+            "description": "Whether the plugin is enabled.",
+            "default": true
+          }
+        }
+      }
+    },
+    "template_version": {
+      "type": "string",
+      "description": "Template version/tag this tenant was scaffolded from."
+    }
+  }
+}

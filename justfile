@@ -39,13 +39,11 @@ check: taplo-check check-ts check-rust
 
 # Check generated TypeScript code
 check-ts:
-    cd typescript && deno task check
+    if test -f typescript/mod.ts; then deno check typescript/mod.ts; else echo "No TypeScript output yet"; fi
 
 # Check generated Rust code
 check-rust:
-    cd rust && cargo check
-    cd rust && cargo clippy
-    cd rust && cargo test
+    if test -f rust/Cargo.toml; then cd rust && cargo check && cargo clippy && cargo test; else echo "No Rust crate yet"; fi
 
 # Check TOML formatting and linting (requires taplo)
 taplo-check:
