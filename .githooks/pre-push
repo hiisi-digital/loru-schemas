@@ -1,2 +1,6 @@
 #!/usr/bin/env sh
-loru dev check
+if command -v loru >/dev/null 2>&1; then
+  loru dev check
+else
+  deno run -A --config="/Users/orgrinrt/Dev/Web/loru/loru-cli/deno.json" "/Users/orgrinrt/Dev/Web/loru/loru-cli/main.ts" dev check
+fi
