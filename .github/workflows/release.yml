@@ -26,9 +26,7 @@ jobs:
       - name: Bump version
         run: |
           level="${{ github.event.inputs.level }}"
-          current=$(deno eval "import v from './deno.json' assert { type: 'json' }; console.log(v.version);")
-          bumped=$(deno eval "import v from './deno.json' assert { type: 'json' }; const [maj,min,pat]=v.version.split('.').map(Number); const level='${level}'; if(level==='patch') console.log([maj,min,pat+1].join('.')); if(level==='minor') console.log([maj,min+1,0].join('.')); if(level==='major') console.log([maj+1,0,0].join('.'));")
-          deno eval "import v from './deno.json' assert { type: 'json' }; v.version='${bumped}'; await Deno.writeTextFile('deno.json', JSON.stringify(v, null, 2)+'\\n');"
+          bumped=$(deno run -A scripts/bump-version.ts --level=${level})
           echo "VERSION=${bumped}" >> $GITHUB_ENV
 
       - name: Commit version bump
@@ -48,7 +46,4 @@ jobs:
           git push origin HEAD
           git push origin "v${VERSION}"
 
-      - name: Publish to JSR
-        run: deno publish
-        env:
-          DENO_AUTH_TOKENS: ${{ secrets.DENO_AUTH_TOKENS }}
+      # Publishing step intentionally omitted; use tags/releases as distribution source.

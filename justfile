@@ -85,3 +85,7 @@ clean:
 update:
     deno cache --reload scripts/*.ts
     cd rust && cargo update
+
+# Bump version (patch|minor|major)
+bump level="patch":
+    deno run -A scripts/bump-version.ts --level={{level}}
