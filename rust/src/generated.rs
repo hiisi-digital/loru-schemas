@@ -66,11 +66,25 @@ pub struct LoruConfigPageItem {
 
 #[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
 pub struct LoruConfigTaskItem {
-    /// Task name invoked via `loru <name>`.
+    /// Task name invoked via `loru run <name>`.
     pub name: String,
     /// What this task does.
     pub description: Option<String>,
     /// Default command to run (shell).
+    pub cmd: Option<String>,
+    /// Platform-specific overrides.
+    pub platform: Option<std::collections::HashMap<String, serde_json::Value>>,
+}
+
+#[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
+pub struct LoruConfigBuildItem {
+    /// Optional label for this build step.
+    pub name: Option<String>,
+    /// Build lifecycle phase.
+    pub phase: String,
+    /// Optional list of plugin/page/lib identifiers this step applies to.
+    pub targets: Option<Vec<String>>,
+    /// Default command to run for this phase.
     pub cmd: Option<String>,
     /// Platform-specific overrides.
     pub platform: Option<std::collections::HashMap<String, serde_json::Value>>,
@@ -88,5 +102,7 @@ pub struct LoruConfig {
     pub page: Option<Vec<LoruConfigPageItem>>,
     /// Custom tasks available in this workspace or project.
     pub task: Option<Vec<LoruConfigTaskItem>>,
+    /// Build pipeline tasks with explicit phases.
+    pub build: Option<Vec<LoruConfigBuildItem>>,
 }
 

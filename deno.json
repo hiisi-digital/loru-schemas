@@ -1,6 +1,6 @@
 {
   "name": "@loru/schemas",
-  "version": "0.2.2",
+  "version": "0.3.0",
   "exports": {
     ".": "./deno/mod.ts"
   },
@@ -18,5 +18,8 @@
   "fmt": {
     "indentWidth": 2,
     "singleQuote": false
+  },
+  "lock": {
+    "path": ".loru/deno.lock"
   }
 }

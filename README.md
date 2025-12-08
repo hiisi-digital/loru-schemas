@@ -67,15 +67,15 @@ loru-schemas/
 ## Development
 
 ```bash
-# Generate types after modifying definitions
-just gen
+# Validate schemas and regenerate bindings (TS + Rust)
+loru run gen
 
-# Create a new migration
-just db-migration add_users_table
-
-# Run tests
-just check
+# Run checks
+loru run check-ts
+loru run check-rust
 ```
+
+Common `loru run` tasks are declared in `loru.toml`. Git hooks (`loru dev init githooks`) and build/cache layout (`loru dev init buildsys`) are managed by the shared CLI.
 
 ## License
 

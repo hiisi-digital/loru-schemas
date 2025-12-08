@@ -1,12 +1,12 @@
 [package]
 name = "loru-schemas"
-version = "0.1.0"
+version = "0.3.0"
 edition = "2021"
-
 [dependencies]
-serde = { version = "1.0", features = ["derive"] }
+serde = "[object Object]"
 serde_json = "1.0"
-
 [lib]
 name = "loru_schemas"
 path = "src/lib.rs"
+[build]
+target-dir = "../.loru/cache/cargo-target"

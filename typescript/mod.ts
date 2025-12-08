@@ -54,11 +54,24 @@ export interface LoruConfigPageItem {
 
 export interface LoruConfigTaskItem {
   name: string;
-  // Task name invoked via `loru <name>`.
+  // Task name invoked via `loru run <name>`.
   description?: string | undefined;
   // What this task does.
   cmd?: string | undefined;
   // Default command to run (shell).
+  platform?: Record<string, unknown> | undefined;
+  // Platform-specific overrides.
+}
+
+export interface LoruConfigBuildItem {
+  name?: string | undefined;
+  // Optional label for this build step.
+  phase: string;
+  // Build lifecycle phase.
+  targets?: string[] | undefined;
+  // Optional list of plugin/page/lib identifiers this step applies to.
+  cmd?: string | undefined;
+  // Default command to run for this phase.
   platform?: Record<string, unknown> | undefined;
   // Platform-specific overrides.
 }
@@ -74,5 +87,7 @@ export interface LoruConfig {
   // Tenant/page entries in this workspace/project.
   task?: LoruConfigTaskItem[] | undefined;
   // Custom tasks available in this workspace or project.
+  build?: LoruConfigBuildItem[] | undefined;
+  // Build pipeline tasks with explicit phases.
 }
 

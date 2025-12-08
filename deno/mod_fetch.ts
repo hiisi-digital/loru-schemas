@@ -1,7 +1,6 @@
 import { join } from "https://deno.land/std@0.208.0/path/mod.ts";
 import { parse as parseToml } from "https://deno.land/std@0.208.0/toml/mod.ts";
-
-export type SchemaKind = "plugin-metadata" | "tenant-metadata";
+export type SchemaKind = "loru-config";
 
 export interface FetchOptions {
   schema: SchemaKind;
@@ -10,16 +9,22 @@ export interface FetchOptions {
   cacheDir?: string;
 }
 
-const DEFAULT_VERSION = "0.1.0";
-const DEFAULT_CACHE = ".loru/cache";
+const DEFAULT_VERSION = "0.3.0";
+const DEFAULT_CACHE = ".loru/cache/schemas";
 
 async function readSchemaVersion(metaPath?: string): Promise<string | undefined> {
   if (!metaPath) return undefined;
   try {
     const text = await Deno.readTextFile(metaPath);
     const parsed = parseToml(text) as Record<string, unknown>;
-    const version = parsed["schema_version"];
-    return typeof version === "string" ? version : undefined;
+    const direct = parsed["schema_version"];
+    if (typeof direct === "string") return direct;
+    const meta = parsed["meta"];
+    if (meta && typeof meta === "object" && !Array.isArray(meta)) {
+      const nested = (meta as Record<string, unknown>)["schema_version"];
+      if (typeof nested === "string") return nested;
+    }
+    return undefined;
   } catch {
     return undefined;
   }
@@ -44,16 +49,17 @@ export async function fetchSchema(opts: FetchOptions): Promise<string> {
   const targetPath = join(targetDir, `${schema}.json`);
   if (await fileExists(targetPath)) return targetPath;
 
-  const tagUrl = `https://raw.githubusercontent.com/hiisi-digital/loru-schemas/v${version}/definitions/${schema}.json`;
-  const mainUrl = `https://raw.githubusercontent.com/hiisi-digital/loru-schemas/main/definitions/${schema}.json`;
+  const urls = [
+    `https://raw.githubusercontent.com/hiisi-digital/loru-schemas/v${version}/definitions/${schema}.json`,
+    `https://raw.githubusercontent.com/hiisi-digital/loru-schemas/main/definitions/${schema}.json`,
+  ];
 
-  for (const url of [tagUrl, mainUrl]) {
+  for (const url of urls) {
     const res = await fetch(url);
-    if (res.ok) {
-      const text = await res.text();
-      await Deno.writeTextFile(targetPath, text);
-      return targetPath;
-    }
+    if (!res.ok) continue;
+    const text = await res.text();
+    await Deno.writeTextFile(targetPath, text);
+    return targetPath;
   }
 
   throw new Error(`Failed to fetch schema ${schema} (version ${version})`);

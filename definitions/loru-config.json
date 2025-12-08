@@ -128,7 +128,7 @@
         "properties": {
           "name": {
             "type": "string",
-            "description": "Task name invoked via `loru <name>`."
+            "description": "Task name invoked via `loru run <name>`."
           },
           "description": {
             "type": "string",
@@ -137,6 +137,49 @@
           "cmd": {
             "type": "string",
             "description": "Default command to run (shell)."
+          },
+          "platform": {
+            "type": "object",
+            "description": "Platform-specific overrides.",
+            "additionalProperties": {
+              "type": "object",
+              "additionalProperties": false,
+              "properties": {
+                "cmd": {
+                  "type": "string",
+                  "description": "Command for this platform."
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "build": {
+      "type": "array",
+      "description": "Build pipeline tasks with explicit phases.",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["phase"],
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "Optional label for this build step."
+          },
+          "phase": {
+            "type": "string",
+            "enum": ["prebuild", "build", "postbuild", "prerelease", "postrelease"],
+            "description": "Build lifecycle phase."
+          },
+          "targets": {
+            "type": "array",
+            "description": "Optional list of plugin/page/lib identifiers this step applies to.",
+            "items": { "type": "string" }
+          },
+          "cmd": {
+            "type": "string",
+            "description": "Default command to run for this phase."
           },
           "platform": {
             "type": "object",

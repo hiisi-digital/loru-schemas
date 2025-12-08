@@ -8,6 +8,7 @@
 
 # Deno cache
 .deno/
+.loru/cache/
 
 # Lock file (optional - usually committed for libs to ensure reproducibility)
 # deno.lock

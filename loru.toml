@@ -1,0 +1,27 @@
+[meta]
+schema_version = "0.3.0"
+
+[[lib]]
+name = "@loru/schemas"
+path = "."
+kind = "deno"
+
+[[lib]]
+name = "loru-schemas"
+path = "rust"
+kind = "rust"
+
+[[task]]
+name = "gen"
+description = "Validate schemas and regenerate TS/Rust bindings"
+cmd = "deno run -A scripts/validate-schemas.ts && deno run -A scripts/generate-ts.ts && deno run -A scripts/generate-rust.ts"
+
+[[task]]
+name = "check-rust"
+description = "Format, lint, and test the Rust crate"
+cmd = "cd rust && cargo fmt -- --check && cargo check && cargo clippy && cargo test"
+
+[[task]]
+name = "check-ts"
+description = "Type-check generated TS output if present"
+cmd = "if test -f typescript/mod.ts; then deno check typescript/mod.ts; else echo \"No TS output to check\"; fi"
