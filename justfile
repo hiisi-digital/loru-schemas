@@ -34,7 +34,7 @@ validate:
 # ============================================================================
 
 # Run all checks
-check: check-ts check-rust
+check: taplo-check check-ts check-rust
     @echo "✓ All checks passed"
 
 # Check generated TypeScript code
@@ -46,6 +46,12 @@ check-rust:
     cd rust && cargo check
     cd rust && cargo clippy
     cd rust && cargo test
+
+# Check TOML formatting and linting (requires taplo)
+taplo-check:
+    if ! command -v taplo >/dev/null 2>&1; then echo "Taplo is required. Install with 'cargo install taplo-cli' or 'brew install taplo'."; exit 1; fi
+    taplo fmt --check
+    taplo lint
 
 # ============================================================================
 # FORMATTING
