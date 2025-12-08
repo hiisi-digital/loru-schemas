@@ -61,4 +61,3 @@ pub struct TenantMetadata {
     #[serde(rename = "template_version")]
     pub template_version: Option<String>,
 }
-

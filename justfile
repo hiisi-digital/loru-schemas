@@ -45,6 +45,10 @@ check-ts:
 check-rust:
     if test -f rust/Cargo.toml; then cd rust && cargo check && cargo clippy && cargo test; else echo "No Rust crate yet"; fi
 
+# Publish (manual; tags handled via GH release workflow)
+publish-jsr:
+    deno publish
+
 # Check TOML formatting and linting (requires taplo)
 taplo-check:
     if ! command -v taplo >/dev/null 2>&1; then echo "Taplo is required. Install with 'cargo install taplo-cli' or 'brew install taplo'."; exit 1; fi
