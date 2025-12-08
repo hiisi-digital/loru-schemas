@@ -102,6 +102,43 @@
           }
         }
       }
+    },
+    "task": {
+      "type": "array",
+      "description": "Custom tasks available in this workspace or project.",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["name"],
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "Task name invoked via `loru <name>`."
+          },
+          "description": {
+            "type": "string",
+            "description": "What this task does."
+          },
+          "cmd": {
+            "type": "string",
+            "description": "Default command to run (shell)."
+          },
+          "platform": {
+            "type": "object",
+            "description": "Platform-specific overrides.",
+            "additionalProperties": {
+              "type": "object",
+              "additionalProperties": false,
+              "properties": {
+                "cmd": {
+                  "type": "string",
+                  "description": "Command for this platform."
+                }
+              }
+            }
+          }
+        }
+      }
     }
   }
 }

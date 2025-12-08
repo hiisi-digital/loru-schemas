@@ -41,6 +41,17 @@ export interface LoruConfigPageItem {
   // Supported locales.
 }
 
+export interface LoruConfigTaskItem {
+  name: string;
+  // Task name invoked via `loru <name>`.
+  description?: string | undefined;
+  // What this task does.
+  cmd?: string | undefined;
+  // Default command to run (shell).
+  platform?: Record<string, unknown> | undefined;
+  // Platform-specific overrides.
+}
+
 export interface LoruConfig {
   meta?: LoruConfigMeta | undefined;
   workspace?: LoruConfigWorkspace | undefined;
@@ -48,5 +59,7 @@ export interface LoruConfig {
   // Plugin entries in this workspace/project.
   page?: LoruConfigPageItem[] | undefined;
   // Tenant/page entries in this workspace/project.
+  task?: LoruConfigTaskItem[] | undefined;
+  // Custom tasks available in this workspace or project.
 }
 
