@@ -9,7 +9,7 @@ export interface FetchOptions {
   cacheDir?: string;
 }
 
-const DEFAULT_VERSION = "0.3.3";
+const DEFAULT_VERSION = "0.3.4";
 const DEFAULT_CACHE = ".loru/cache/schemas";
 
 async function readSchemaVersion(

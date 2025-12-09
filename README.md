@@ -26,7 +26,7 @@ Import the generated models directly from the repository or package:
 // deno.json
 {
   "imports": {
-    "@loru/schemas": "github:hiisi-digital/loru-schemas@v0.3.3/deno/mod.ts"
+    "@loru/schemas": "github:hiisi-digital/loru-schemas@v0.3.4/deno/mod.ts"
   }
 }
 ```
