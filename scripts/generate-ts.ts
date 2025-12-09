@@ -1,42 +1,37 @@
 // deno-lint-ignore-file no-explicit-any
-import { basename, join } from "https://deno.land/std@0.208.0/path/mod.ts";
+import { normalizeRef, resolveSchema, pascalCase, loadSchemas, type JSONSchema } from "./schema_utils.ts";
 
-type JSONSchema = {
-  title?: string;
-  type?: string | string[];
-  properties?: Record<string, JSONSchema>;
-  required?: string[];
-  items?: JSONSchema;
-  additionalProperties?: boolean | JSONSchema;
-  description?: string;
-  pattern?: string;
-};
-
-const DEFINITIONS_DIR = "./definitions";
 const OUTPUT = "./typescript/mod.ts";
 
-function pascalCase(input: string): string {
-  return input
-    .replace(/[-_]+/g, " ")
-    .replace(/\s+(\w)/g, (_, c) => c.toUpperCase())
-    .replace(/^\w/, (c) => c.toUpperCase());
-}
-
-function tsTypeFromSchema(name: string, schema: JSONSchema, required: boolean, nested: Array<{ name: string; schema: JSONSchema }>): string {
+function tsTypeFromSchema(
+  name: string,
+  schema: JSONSchema,
+  required: boolean,
+  nested: Array<{ name: string; schema: JSONSchema }>,
+  defs: Record<string, JSONSchema>,
+): string {
+  if (schema.$ref) {
+    const refName = normalizeRef(schema.$ref);
+    if (refName) return `${pascalCase(refName)}${required ? "" : " | undefined"}`;
+  }
+  const normalized = resolveSchema(schema, defs);
   const optional = required ? "" : " | undefined";
   const type = (() => {
-    const t = schema.type;
+    const t = normalized.type;
+    if (normalized.enum?.length) {
+      return normalized.enum.map((v) => JSON.stringify(v)).join(" | ");
+    }
     if (t === "string") return "string";
     if (t === "integer" || t === "number") return "number";
     if (t === "boolean") return "boolean";
-    if (t === "array" && schema.items) {
-      const itemType = tsTypeFromSchema(`${name}Item`, schema.items, true, nested).replace(" | undefined", "");
+    if (t === "array" && normalized.items) {
+      const itemType = tsTypeFromSchema(`${name}Item`, normalized.items, true, nested, defs).replace(" | undefined", "");
       return `${itemType}[]`;
     }
     if (t === "object") {
-      if (schema.properties) {
+      if (normalized.properties) {
         const nestedName = pascalCase(`${name}`);
-        nested.push({ name: nestedName, schema });
+        nested.push({ name: nestedName, schema: normalized });
         return nestedName;
       }
       return "Record<string, unknown>";
@@ -46,33 +41,43 @@ function tsTypeFromSchema(name: string, schema: JSONSchema, required: boolean, n
   return `${type}${optional}`;
 }
 
-function buildInterface(name: string, schema: JSONSchema): { main: string; nested: string[] } {
+function collectExtends(schema: JSONSchema): string[] {
+  const bases: string[] = [];
+  if (schema.$ref) {
+    const ref = normalizeRef(schema.$ref);
+    if (ref) bases.push(pascalCase(ref));
+  }
+  if (schema.allOf) {
+    for (const part of schema.allOf) {
+      if (part.$ref) {
+        const ref = normalizeRef(part.$ref);
+        if (ref) bases.push(pascalCase(ref));
+      }
+    }
+  }
+  return bases;
+}
+
+function buildInterface(name: string, schema: JSONSchema, defs: Record<string, JSONSchema>): { main: string; nested: string[] } {
+  const normalized = resolveSchema(schema, defs);
   const nested: Array<{ name: string; schema: JSONSchema }> = [];
-  const required = new Set(schema.required ?? []);
-  const props = Object.entries(schema.properties ?? {}).map(([key, value]) => {
+  const required = new Set(normalized.required ?? []);
+  const props = Object.entries(normalized.properties ?? {}).map(([key, value]) => {
     const fieldRequired = required.has(key);
-    const type = tsTypeFromSchema(`${name}${pascalCase(key)}`, value, fieldRequired, nested);
+    const type = tsTypeFromSchema(`${name}${pascalCase(key)}`, value, fieldRequired, nested, defs);
     const optional = fieldRequired ? "" : "?";
     const desc = value.description ? `  // ${value.description}` : "";
     return `  ${key}${optional}: ${type};${desc ? "\n" + desc : ""}`;
   });
 
-  const nestedInterfaces = nested.map((n) => buildInterface(n.name, n.schema).main);
+  const nestedInterfaces = nested.flatMap((n) => {
+    const built = buildInterface(n.name, n.schema, defs);
+    return [...built.nested, built.main];
+  });
 
-  const iface = `export interface ${name} {\n${props.join("\n")}\n}\n`;
-  return { main: iface, nested: nestedInterfaces.flat() };
-}
-
-async function loadSchemas(): Promise<Array<{ name: string; schema: JSONSchema }>> {
-  const result = [];
-  for await (const entry of Deno.readDir(DEFINITIONS_DIR)) {
-    if (!entry.isFile || !entry.name.endsWith(".json")) continue;
-    const raw = await Deno.readTextFile(join(DEFINITIONS_DIR, entry.name));
-    const schema = JSON.parse(raw) as JSONSchema;
-    const name = pascalCase(schema.title ?? basename(entry.name, ".json"));
-    result.push({ name, schema });
-  }
-  return result;
+  const extendsList = collectExtends(schema);
+  const iface = `export interface ${name}${extendsList.length ? ` extends ${extendsList.join(", ")}` : ""} {\n${props.join("\n")}\n}\n`;
+  return { main: iface, nested: nestedInterfaces };
 }
 
 async function main() {
@@ -80,8 +85,8 @@ async function main() {
   let output = "// AUTO-GENERATED. Do not edit directly.\n";
   output += "// Generated by scripts/generate-ts.ts\n\n";
 
-  for (const { name, schema } of schemas) {
-    const { main, nested } = buildInterface(name, schema);
+  for (const { name, schema, defs } of schemas) {
+    const { main, nested } = buildInterface(name, schema, defs);
     output += nested.join("\n") + (nested.length ? "\n" : "");
     output += main + "\n";
   }

@@ -21,7 +21,7 @@ Import the generated models directly from the repository or package:
 // deno.json
 {
   "imports": {
-    "@loru/schemas": "github:hiisi-digital/loru-schemas/deno/mod.ts"
+    "@loru/schemas": "github:hiisi-digital/loru-schemas@v0.3.2/deno/mod.ts"
   }
 }
 ```
@@ -70,9 +70,8 @@ loru-schemas/
 # Validate schemas and regenerate bindings (TS + Rust)
 loru run gen
 
-# Run checks
-loru run check-ts
-loru run check-rust
+# Run checks (schema validation + TS type-check + Rust fmt/check/clippy/test)
+loru dev check
 ```
 
 Common `loru run` tasks are declared in `loru.toml`. Git hooks (`loru dev init githooks`) and build/cache layout (`loru dev init buildsys`) are managed by the shared CLI.

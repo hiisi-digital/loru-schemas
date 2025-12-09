@@ -3,6 +3,93 @@
   "title": "LoruConfig",
   "type": "object",
   "additionalProperties": false,
+  "$defs": {
+    "PipelineArtifacts": {
+      "type": "object",
+      "description": "Artifact output options for pipeline steps.",
+      "additionalProperties": false,
+      "properties": {
+        "scope": {
+          "type": "string",
+          "enum": ["workspace", "project", "custom"],
+          "description": "Where artifacts should live: workspace root, project root, or a custom path."
+        },
+        "path": {
+          "type": "string",
+          "description": "Custom base path for artifacts (absolute or relative to project)."
+        },
+        "dirname": {
+          "type": "string",
+          "description": "Subdirectory template under artifact base (supports @tool and @tool-target tokens)."
+        }
+      }
+    },
+    "PipelineStepBase": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "Optional label for this pipeline step."
+        },
+        "targets": {
+          "type": "array",
+          "description": "Optional list of plugin/page/lib identifiers this step applies to.",
+          "items": { "type": "string" }
+        },
+        "cmd": {
+          "type": "string",
+          "description": "Default command to run for this step."
+        },
+        "platform": {
+          "type": "object",
+          "description": "Platform-specific overrides.",
+          "additionalProperties": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "cmd": {
+                "type": "string",
+                "description": "Command for this platform."
+              }
+            }
+          }
+        }
+      }
+    },
+    "CheckTask": {
+      "allOf": [
+        { "$ref": "#/$defs/PipelineStepBase" },
+        {
+          "type": "object",
+          "required": ["stage"],
+          "properties": {
+            "stage": {
+              "type": "string",
+              "enum": ["precheck", "fmt", "lint", "check", "test", "postcheck"],
+              "description": "Check pipeline stage for this step."
+            }
+          }
+        }
+      ]
+    },
+    "BuildTask": {
+      "allOf": [
+        { "$ref": "#/$defs/PipelineStepBase" },
+        {
+          "type": "object",
+          "required": ["phase"],
+          "properties": {
+            "phase": {
+              "type": "string",
+              "enum": ["prebuild", "build", "postbuild", "prerelease", "postrelease"],
+              "description": "Build lifecycle phase."
+            }
+          }
+        }
+      ]
+    }
+  },
   "properties": {
     "lib": {
       "type": "array",
@@ -155,46 +242,29 @@
         }
       }
     },
+    "check": {
+      "type": "object",
+      "description": "Check pipeline configuration.",
+      "additionalProperties": false,
+      "properties": {
+        "artifacts": { "$ref": "#/$defs/PipelineArtifacts" },
+        "task": {
+          "type": "array",
+          "description": "Check pipeline hooks that run with loru dev check (fmt/lint/type-check/test).",
+          "items": { "$ref": "#/$defs/CheckTask" }
+        }
+      }
+    },
     "build": {
-      "type": "array",
-      "description": "Build pipeline tasks with explicit phases.",
-      "items": {
-        "type": "object",
-        "additionalProperties": false,
-        "required": ["phase"],
-        "properties": {
-          "name": {
-            "type": "string",
-            "description": "Optional label for this build step."
-          },
-          "phase": {
-            "type": "string",
-            "enum": ["prebuild", "build", "postbuild", "prerelease", "postrelease"],
-            "description": "Build lifecycle phase."
-          },
-          "targets": {
-            "type": "array",
-            "description": "Optional list of plugin/page/lib identifiers this step applies to.",
-            "items": { "type": "string" }
-          },
-          "cmd": {
-            "type": "string",
-            "description": "Default command to run for this phase."
-          },
-          "platform": {
-            "type": "object",
-            "description": "Platform-specific overrides.",
-            "additionalProperties": {
-              "type": "object",
-              "additionalProperties": false,
-              "properties": {
-                "cmd": {
-                  "type": "string",
-                  "description": "Command for this platform."
-                }
-              }
-            }
-          }
+      "type": "object",
+      "description": "Build pipeline configuration.",
+      "additionalProperties": false,
+      "properties": {
+        "artifacts": { "$ref": "#/$defs/PipelineArtifacts" },
+        "task": {
+          "type": "array",
+          "description": "Build pipeline tasks with explicit phases.",
+          "items": { "$ref": "#/$defs/BuildTask" }
         }
       }
     }

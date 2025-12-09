@@ -6,7 +6,7 @@ export interface LoruConfigLibItem {
   // Library/package name.
   path: string;
   // Relative path to the library root.
-  kind: string;
+  kind: "deno" | "rust";
   // Library type for publishing.
   publish?: string | undefined;
   // Publish target (e.g., jsr, crates.io).
@@ -63,17 +63,16 @@ export interface LoruConfigTaskItem {
   // Platform-specific overrides.
 }
 
-export interface LoruConfigBuildItem {
-  name?: string | undefined;
-  // Optional label for this build step.
-  phase: string;
-  // Build lifecycle phase.
-  targets?: string[] | undefined;
-  // Optional list of plugin/page/lib identifiers this step applies to.
-  cmd?: string | undefined;
-  // Default command to run for this phase.
-  platform?: Record<string, unknown> | undefined;
-  // Platform-specific overrides.
+export interface LoruConfigCheck {
+  artifacts?: PipelineArtifacts | undefined;
+  task?: CheckTask[] | undefined;
+  // Check pipeline hooks that run with loru dev check (fmt/lint/type-check/test).
+}
+
+export interface LoruConfigBuild {
+  artifacts?: PipelineArtifacts | undefined;
+  task?: BuildTask[] | undefined;
+  // Build pipeline tasks with explicit phases.
 }
 
 export interface LoruConfig {
@@ -87,7 +86,55 @@ export interface LoruConfig {
   // Tenant/page entries in this workspace/project.
   task?: LoruConfigTaskItem[] | undefined;
   // Custom tasks available in this workspace or project.
-  build?: LoruConfigBuildItem[] | undefined;
-  // Build pipeline tasks with explicit phases.
+  check?: LoruConfigCheck | undefined;
+  // Check pipeline configuration.
+  build?: LoruConfigBuild | undefined;
+  // Build pipeline configuration.
+}
+
+export interface PipelineArtifacts {
+  scope?: "workspace" | "project" | "custom" | undefined;
+  // Where artifacts should live: workspace root, project root, or a custom path.
+  path?: string | undefined;
+  // Custom base path for artifacts (absolute or relative to project).
+  dirname?: string | undefined;
+  // Subdirectory template under artifact base (supports @tool and @tool-target tokens).
+}
+
+export interface PipelineStepBase {
+  name?: string | undefined;
+  // Optional label for this pipeline step.
+  targets?: string[] | undefined;
+  // Optional list of plugin/page/lib identifiers this step applies to.
+  cmd?: string | undefined;
+  // Default command to run for this step.
+  platform?: Record<string, unknown> | undefined;
+  // Platform-specific overrides.
+}
+
+export interface CheckTask extends PipelineStepBase {
+  name?: string | undefined;
+  // Optional label for this pipeline step.
+  targets?: string[] | undefined;
+  // Optional list of plugin/page/lib identifiers this step applies to.
+  cmd?: string | undefined;
+  // Default command to run for this step.
+  platform?: Record<string, unknown> | undefined;
+  // Platform-specific overrides.
+  stage: "precheck" | "fmt" | "lint" | "check" | "test" | "postcheck";
+  // Check pipeline stage for this step.
+}
+
+export interface BuildTask extends PipelineStepBase {
+  name?: string | undefined;
+  // Optional label for this pipeline step.
+  targets?: string[] | undefined;
+  // Optional list of plugin/page/lib identifiers this step applies to.
+  cmd?: string | undefined;
+  // Default command to run for this step.
+  platform?: Record<string, unknown> | undefined;
+  // Platform-specific overrides.
+  phase: "prebuild" | "build" | "postbuild" | "prerelease" | "postrelease";
+  // Build lifecycle phase.
 }
 

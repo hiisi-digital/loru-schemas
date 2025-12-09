@@ -77,17 +77,17 @@ pub struct LoruConfigTaskItem {
 }
 
 #[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
-pub struct LoruConfigBuildItem {
-    /// Optional label for this build step.
-    pub name: Option<String>,
-    /// Build lifecycle phase.
-    pub phase: String,
-    /// Optional list of plugin/page/lib identifiers this step applies to.
-    pub targets: Option<Vec<String>>,
-    /// Default command to run for this phase.
-    pub cmd: Option<String>,
-    /// Platform-specific overrides.
-    pub platform: Option<std::collections::HashMap<String, serde_json::Value>>,
+pub struct LoruConfigCheck {
+    pub artifacts: PipelineArtifacts,
+    /// Check pipeline hooks that run with loru dev check (fmt/lint/type-check/test).
+    pub task: Option<Vec<CheckTask>>,
+}
+
+#[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
+pub struct LoruConfigBuild {
+    pub artifacts: PipelineArtifacts,
+    /// Build pipeline tasks with explicit phases.
+    pub task: Option<Vec<BuildTask>>,
 }
 
 #[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
@@ -102,7 +102,87 @@ pub struct LoruConfig {
     pub page: Option<Vec<LoruConfigPageItem>>,
     /// Custom tasks available in this workspace or project.
     pub task: Option<Vec<LoruConfigTaskItem>>,
-    /// Build pipeline tasks with explicit phases.
-    pub build: Option<Vec<LoruConfigBuildItem>>,
+    /// Check pipeline configuration.
+    pub check: Option<LoruConfigCheck>,
+    /// Build pipeline configuration.
+    pub build: Option<LoruConfigBuild>,
+}
+
+#[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
+pub struct PipelineArtifacts {
+    /// Where artifacts should live: workspace root, project root, or a custom path.
+    pub scope: Option<String>,
+    /// Custom base path for artifacts (absolute or relative to project).
+    pub path: Option<String>,
+    /// Subdirectory template under artifact base (supports @tool and @tool-target tokens).
+    pub dirname: Option<String>,
+}
+
+#[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
+pub struct PipelineStepBase {
+    /// Optional label for this pipeline step.
+    pub name: Option<String>,
+    /// Optional list of plugin/page/lib identifiers this step applies to.
+    pub targets: Option<Vec<String>>,
+    /// Default command to run for this step.
+    pub cmd: Option<String>,
+    /// Platform-specific overrides.
+    pub platform: Option<std::collections::HashMap<String, serde_json::Value>>,
+}
+
+#[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
+pub struct CheckTask {
+    /// Optional label for this pipeline step.
+    pub name: Option<String>,
+    /// Optional list of plugin/page/lib identifiers this step applies to.
+    pub targets: Option<Vec<String>>,
+    /// Default command to run for this step.
+    pub cmd: Option<String>,
+    /// Platform-specific overrides.
+    pub platform: Option<std::collections::HashMap<String, serde_json::Value>>,
+    /// Check pipeline stage for this step.
+    pub stage: String,
+}
+
+#[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
+pub struct BuildTask {
+    /// Optional label for this pipeline step.
+    pub name: Option<String>,
+    /// Optional list of plugin/page/lib identifiers this step applies to.
+    pub targets: Option<Vec<String>>,
+    /// Default command to run for this step.
+    pub cmd: Option<String>,
+    /// Platform-specific overrides.
+    pub platform: Option<std::collections::HashMap<String, serde_json::Value>>,
+    /// Build lifecycle phase.
+    pub phase: String,
+}
+
+pub trait PipelineStep {
+    fn name(&self) -> Option<&String>;
+    fn targets(&self) -> Option<&Vec<String>>;
+    fn cmd(&self) -> Option<&String>;
+    fn platform(&self) -> Option<&HashMap<String, Value>>;
+}
+
+impl PipelineStep for PipelineStepBase {
+    fn name(&self) -> Option<&String> { self.name.as_ref() }
+    fn targets(&self) -> Option<&Vec<String>> { self.targets.as_ref() }
+    fn cmd(&self) -> Option<&String> { self.cmd.as_ref() }
+    fn platform(&self) -> Option<&HashMap<String, Value>> { self.platform.as_ref() }
+}
+
+impl PipelineStep for CheckTask {
+    fn name(&self) -> Option<&String> { self.name.as_ref() }
+    fn targets(&self) -> Option<&Vec<String>> { self.targets.as_ref() }
+    fn cmd(&self) -> Option<&String> { self.cmd.as_ref() }
+    fn platform(&self) -> Option<&HashMap<String, Value>> { self.platform.as_ref() }
+}
+
+impl PipelineStep for BuildTask {
+    fn name(&self) -> Option<&String> { self.name.as_ref() }
+    fn targets(&self) -> Option<&Vec<String>> { self.targets.as_ref() }
+    fn cmd(&self) -> Option<&String> { self.cmd.as_ref() }
+    fn platform(&self) -> Option<&HashMap<String, Value>> { self.platform.as_ref() }
 }
 
