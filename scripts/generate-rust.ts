@@ -4,6 +4,7 @@ import {
   normalizeRef,
   pascalCase,
   resolveSchema,
+  toSnake,
 } from "./schema_utils.ts";
 
 const OUTPUT = "./rust/src/generated.rs";
@@ -70,16 +71,21 @@ function buildStruct(
         nested,
         defs,
       );
-      const serdeLine = key.includes("_")
+      const fieldName = toSnake(key);
+      const serdeLine = fieldName !== key
         ? `    #[serde(rename = "${key}")]`
         : undefined;
-      const fieldName = key.replace(/-+/g, "_");
       const doc = value.description ? `    /// ${value.description}\n` : "";
       return `${doc}${
         serdeLine ? serdeLine + "\n" : ""
       }    pub ${fieldName}: ${rustType},`;
     },
   );
+  if (!props.length) {
+    props.push(
+      "    #[serde(flatten)]\n    pub extra: std::collections::HashMap<String, serde_json::Value>,",
+    );
+  }
 
   const nestedStructs = nested.flatMap((n) => {
     const built = buildStruct(n.name, n.schema);

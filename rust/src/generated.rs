@@ -9,9 +9,9 @@ pub struct LoruConfigLibItem {
     /// Library/package name.
     pub name: String,
     /// Relative path to the library root.
-    pub path: String,
-    /// Library type for publishing.
-    pub kind: String,
+    pub path: Option<String>,
+    /// Library type for publishing (auto detects Cargo.toml vs deno.json).
+    pub kind: Option<String>,
     /// Publish target (e.g., jsr, crates.io).
     pub publish: Option<String>,
 }
@@ -19,7 +19,6 @@ pub struct LoruConfigLibItem {
 #[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
 pub struct LoruConfigMeta {
     /// Default schema version for entries (semver or range).
-    #[serde(rename = "schema_version")]
     pub schema_version: Option<String>,
 }
 
@@ -37,10 +36,11 @@ pub struct LoruConfigPluginItem {
     pub name: String,
     /// Relative path to the plugin project root.
     pub path: Option<String>,
+    /// Plugin implementation type (auto detects Cargo.toml vs deno.json).
+    pub kind: Option<String>,
     /// Path to the plugin entry module.
     pub entrypoint: Option<String>,
     /// Schema version/range to validate this plugin metadata.
-    #[serde(rename = "schema_version")]
     pub schema_version: Option<String>,
 }
 
@@ -52,15 +52,32 @@ pub struct LoruConfigPageItem {
     pub name: String,
     /// Relative path to the tenant project root.
     pub path: Option<String>,
+    /// Tenant implementation type (auto detects Cargo.toml vs deno.json).
+    pub kind: Option<String>,
     /// Entry module for this tenant/page.
     pub entrypoint: Option<String>,
     /// Schema version/range to validate this tenant metadata.
-    #[serde(rename = "schema_version")]
     pub schema_version: Option<String>,
     /// Primary domains associated with this tenant/page.
     pub domains: Option<Vec<String>>,
     /// Supported locales.
     pub locales: Option<Vec<String>>,
+}
+
+#[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
+pub struct LoruConfigBinItem {
+    /// Binary name (used for tagging and task targeting).
+    pub name: String,
+    /// Optional explicit ID for the binary (defaults to name).
+    pub id: Option<String>,
+    /// Relative path to the binary project root.
+    pub path: Option<String>,
+    /// Binary implementation type (auto detects Cargo.toml vs deno.json).
+    pub kind: Option<String>,
+    /// Entry module for Deno binaries.
+    pub entrypoint: Option<String>,
+    /// Schema version/range to validate this binary metadata.
+    pub schema_version: Option<String>,
 }
 
 #[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
@@ -99,12 +116,30 @@ pub struct LoruConfig {
     pub plugin: Option<Vec<LoruConfigPluginItem>>,
     /// Tenant/page entries in this workspace/project.
     pub page: Option<Vec<LoruConfigPageItem>>,
+    /// Binary targets within this workspace/project.
+    pub bin: Option<Vec<LoruConfigBinItem>>,
+    /// Optional inline Deno config; written to generated deno.json when running via loru.
+    pub deno: Option<serde_json::Value>,
+    /// Optional inline Cargo manifest; written to generated Cargo.toml when running via loru.
+    pub cargo: Option<serde_json::Value>,
     /// Custom tasks available in this workspace or project.
     pub task: Option<Vec<LoruConfigTaskItem>>,
     /// Check pipeline configuration.
     pub check: Option<LoruConfigCheck>,
     /// Build pipeline configuration.
     pub build: Option<LoruConfigBuild>,
+}
+
+#[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
+pub struct DenoConfig {
+    #[serde(flatten)]
+    pub extra: std::collections::HashMap<String, serde_json::Value>,
+}
+
+#[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
+pub struct CargoConfig {
+    #[serde(flatten)]
+    pub extra: std::collections::HashMap<String, serde_json::Value>,
 }
 
 #[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]

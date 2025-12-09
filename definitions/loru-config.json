@@ -4,6 +4,14 @@
   "type": "object",
   "additionalProperties": false,
   "$defs": {
+    "DenoConfig": {
+      "description": "Inline Deno configuration (mirrors deno.json/deno.jsonc).",
+      "allOf": [{ "$ref": "./deno-config.json#" }]
+    },
+    "CargoConfig": {
+      "description": "Inline Cargo manifest (mirrors Cargo.toml structure).",
+      "allOf": [{ "$ref": "./cargo-config.json#" }]
+    },
     "PipelineArtifacts": {
       "type": "object",
       "description": "Artifact output options for pipeline steps.",
@@ -107,17 +115,19 @@
       "items": {
         "type": "object",
         "additionalProperties": false,
-        "required": ["name", "path", "kind"],
+        "required": ["name"],
         "properties": {
           "name": { "type": "string", "description": "Library/package name." },
           "path": {
             "type": "string",
-            "description": "Relative path to the library root."
+            "description": "Relative path to the library root.",
+            "default": "."
           },
           "kind": {
             "type": "string",
-            "enum": ["deno", "rust"],
-            "description": "Library type for publishing."
+            "enum": ["deno", "rust", "auto"],
+            "default": "auto",
+            "description": "Library type for publishing (auto detects Cargo.toml vs deno.json)."
           },
           "publish": {
             "type": "string",
@@ -169,6 +179,12 @@
             "description": "Relative path to the plugin project root.",
             "default": "."
           },
+          "kind": {
+            "type": "string",
+            "enum": ["deno", "rust", "auto"],
+            "default": "auto",
+            "description": "Plugin implementation type (auto detects Cargo.toml vs deno.json)."
+          },
           "entrypoint": {
             "type": "string",
             "description": "Path to the plugin entry module.",
@@ -203,6 +219,12 @@
             "description": "Relative path to the tenant project root.",
             "default": "."
           },
+          "kind": {
+            "type": "string",
+            "enum": ["deno", "rust", "auto"],
+            "default": "auto",
+            "description": "Tenant implementation type (auto detects Cargo.toml vs deno.json)."
+          },
           "entrypoint": {
             "type": "string",
             "description": "Entry module for this tenant/page.",
@@ -224,6 +246,53 @@
           }
         }
       }
+    },
+    "bin": {
+      "type": "array",
+      "description": "Binary targets within this workspace/project.",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["name"],
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "Binary name (used for tagging and task targeting)."
+          },
+          "id": {
+            "type": "string",
+            "description": "Optional explicit ID for the binary (defaults to name)."
+          },
+          "path": {
+            "type": "string",
+            "description": "Relative path to the binary project root.",
+            "default": "."
+          },
+          "kind": {
+            "type": "string",
+            "enum": ["deno", "rust", "auto"],
+            "default": "auto",
+            "description": "Binary implementation type (auto detects Cargo.toml vs deno.json)."
+          },
+          "entrypoint": {
+            "type": "string",
+            "description": "Entry module for Deno binaries.",
+            "default": "main.ts"
+          },
+          "schema_version": {
+            "type": "string",
+            "description": "Schema version/range to validate this binary metadata."
+          }
+        }
+      }
+    },
+    "deno": {
+      "description": "Optional inline Deno config; written to generated deno.json when running via loru.",
+      "allOf": [{ "$ref": "#/$defs/DenoConfig" }]
+    },
+    "cargo": {
+      "description": "Optional inline Cargo manifest; written to generated Cargo.toml when running via loru.",
+      "allOf": [{ "$ref": "#/$defs/CargoConfig" }]
     },
     "task": {
       "type": "array",

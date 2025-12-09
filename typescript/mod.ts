@@ -4,10 +4,10 @@
 export interface LoruConfigLibItem {
   name: string;
   // Library/package name.
-  path: string;
+  path?: string | undefined;
   // Relative path to the library root.
-  kind: "deno" | "rust";
-  // Library type for publishing.
+  kind?: "deno" | "rust" | "auto" | undefined;
+  // Library type for publishing (auto detects Cargo.toml vs deno.json).
   publish?: string | undefined;
   // Publish target (e.g., jsr, crates.io).
 }
@@ -29,6 +29,8 @@ export interface LoruConfigPluginItem {
   // Human-readable name for the plugin.
   path?: string | undefined;
   // Relative path to the plugin project root.
+  kind?: "deno" | "rust" | "auto" | undefined;
+  // Plugin implementation type (auto detects Cargo.toml vs deno.json).
   entrypoint?: string | undefined;
   // Path to the plugin entry module.
   schema_version?: string | undefined;
@@ -42,6 +44,8 @@ export interface LoruConfigPageItem {
   // Display name for the tenant/page.
   path?: string | undefined;
   // Relative path to the tenant project root.
+  kind?: "deno" | "rust" | "auto" | undefined;
+  // Tenant implementation type (auto detects Cargo.toml vs deno.json).
   entrypoint?: string | undefined;
   // Entry module for this tenant/page.
   schema_version?: string | undefined;
@@ -50,6 +54,21 @@ export interface LoruConfigPageItem {
   // Primary domains associated with this tenant/page.
   locales?: string[] | undefined;
   // Supported locales.
+}
+
+export interface LoruConfigBinItem {
+  name: string;
+  // Binary name (used for tagging and task targeting).
+  id?: string | undefined;
+  // Optional explicit ID for the binary (defaults to name).
+  path?: string | undefined;
+  // Relative path to the binary project root.
+  kind?: "deno" | "rust" | "auto" | undefined;
+  // Binary implementation type (auto detects Cargo.toml vs deno.json).
+  entrypoint?: string | undefined;
+  // Entry module for Deno binaries.
+  schema_version?: string | undefined;
+  // Schema version/range to validate this binary metadata.
 }
 
 export interface LoruConfigTaskItem {
@@ -84,12 +103,26 @@ export interface LoruConfig {
   // Plugin entries in this workspace/project.
   page?: LoruConfigPageItem[] | undefined;
   // Tenant/page entries in this workspace/project.
+  bin?: LoruConfigBinItem[] | undefined;
+  // Binary targets within this workspace/project.
+  deno?: unknown | undefined;
+  // Optional inline Deno config; written to generated deno.json when running via loru.
+  cargo?: unknown | undefined;
+  // Optional inline Cargo manifest; written to generated Cargo.toml when running via loru.
   task?: LoruConfigTaskItem[] | undefined;
   // Custom tasks available in this workspace or project.
   check?: LoruConfigCheck | undefined;
   // Check pipeline configuration.
   build?: LoruConfigBuild | undefined;
   // Build pipeline configuration.
+}
+
+export interface DenoConfig {
+  [key: string]: unknown;
+}
+
+export interface CargoConfig {
+  [key: string]: unknown;
 }
 
 export interface PipelineArtifacts {

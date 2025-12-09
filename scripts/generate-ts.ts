@@ -82,6 +82,9 @@ function buildInterface(
   const props = Object.entries(normalized.properties ?? {}).map(
     ([key, value]) => {
       const fieldRequired = required.has(key);
+      const propName = /^[A-Za-z_][A-Za-z0-9_]*$/.test(key)
+        ? key
+        : JSON.stringify(key);
       const type = tsTypeFromSchema(
         `${name}${pascalCase(key)}`,
         value,
@@ -91,9 +94,12 @@ function buildInterface(
       );
       const optional = fieldRequired ? "" : "?";
       const desc = value.description ? `  // ${value.description}` : "";
-      return `  ${key}${optional}: ${type};${desc ? "\n" + desc : ""}`;
+      return `  ${propName}${optional}: ${type};${desc ? "\n" + desc : ""}`;
     },
   );
+  if (!props.length) {
+    props.push("  [key: string]: unknown;");
+  }
 
   const nestedInterfaces = nested.flatMap((n) => {
     const built = buildInterface(n.name, n.schema, defs);

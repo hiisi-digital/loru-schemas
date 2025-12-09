@@ -23,6 +23,14 @@ export function pascalCase(input: string): string {
     .replace(/^\w/, (c) => c.toUpperCase());
 }
 
+/** Convert identifiers into snake_case. */
+export function toSnake(input: string): string {
+  return input
+    .replace(/-/g, "_")
+    .replace(/([a-z0-9])([A-Z])/g, "$1_$2")
+    .toLowerCase();
+}
+
 /** Normalize a $ref of form #/$defs/Name into the def key. */
 export function normalizeRef(ref: string): string | undefined {
   const match = ref.match(/#\/\$defs\/(.+)$/);
@@ -81,6 +89,7 @@ export async function loadSchemas(
   > = [];
   for await (const entry of Deno.readDir(definitionsDir)) {
     if (!entry.isFile || !entry.name.endsWith(".json")) continue;
+    if (!entry.name.startsWith("loru-config")) continue;
     const raw = await Deno.readTextFile(join(definitionsDir, entry.name));
     const schema = JSON.parse(raw) as JSONSchema;
     const defs = schema.$defs ?? {};
