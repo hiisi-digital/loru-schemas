@@ -1,6 +1,6 @@
 {
   "name": "@loru/schemas",
-  "version": "0.3.3",
+  "version": "0.3.4",
   "exports": {
     ".": "./deno/mod.ts"
   },
@@ -9,7 +9,9 @@
     "std/toml": "https://deno.land/std@0.208.0/toml/mod.ts"
   },
   "lint": {
-    "exclude": [".loru/"],
+    "exclude": [
+      ".loru/"
+    ],
     "rules": {
       "tags": [
         "recommended"
@@ -19,7 +21,9 @@
   "fmt": {
     "indentWidth": 2,
     "singleQuote": false,
-    "exclude": [".loru/"]
+    "exclude": [
+      ".loru/"
+    ]
   },
   "lock": {
     "path": ".loru/deno.lock"
