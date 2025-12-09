@@ -1,11 +1,5 @@
 [formatting]
 align_entries = true
-column_width = 100
+column_width  = 100
 indent_tables = true
-reorder_keys = true
-
-[lint]
-duplicate_keys = "error"
-mixed_tabs = "error"
-trailing_whitespace = "error"
-align_entries = "warn"
+reorder_keys  = true

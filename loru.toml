@@ -1,27 +1,24 @@
 [meta]
-schema_version = "0.3.2"
+schema_version = "0.3.3"
 
 [[lib]]
+kind = "deno"
 name = "@loru/schemas"
 path = "."
-kind = "deno"
 
 [[lib]]
+kind = "rust"
 name = "loru-schemas"
 path = "rust"
-kind = "rust"
 
 [[task]]
+cmd  = "deno run -A scripts/validate-schemas.ts && deno run -A scripts/generate-ts.ts && deno run -A scripts/generate-rust.ts"
 name = "gen"
-description = "Validate schemas and regenerate TS/Rust bindings"
-cmd = "deno run -A scripts/validate-schemas.ts && deno run -A scripts/generate-ts.ts && deno run -A scripts/generate-rust.ts"
 
 [[check.task]]
+cmd   = "sh -c 'ROOT=$(git rev-parse --show-toplevel 2>/dev/null || pwd); cd \"$ROOT\" && deno run -A scripts/validate-schemas.ts && if [ -f \"$ROOT/typescript/mod.ts\" ]; then deno check \"$ROOT/typescript/mod.ts\"; else echo \"No TS output to check\"; fi'"
 stage = "check"
-description = "Validate schemas and type-check generated TS output if present"
-cmd = "deno run -A scripts/validate-schemas.ts && (test -f typescript/mod.ts && deno check typescript/mod.ts || echo \"No TS output to check\")"
 
 [[check.task]]
+cmd   = "sh -c 'ROOT=$(git rev-parse --show-toplevel 2>/dev/null || pwd); cd \"$ROOT/rust\" && cargo fmt -- --check && cargo check && cargo clippy && cargo test'"
 stage = "test"
-description = "Format, lint, and test the Rust crate"
-cmd = "cd rust && cargo fmt -- --check && cargo check && cargo clippy && cargo test"

@@ -26,11 +26,15 @@
     },
     "PipelineStepBase": {
       "type": "object",
-      "additionalProperties": false,
+      "additionalProperties": true,
       "properties": {
         "name": {
           "type": "string",
           "description": "Optional label for this pipeline step."
+        },
+        "description": {
+          "type": "string",
+          "description": "Optional human-friendly description of the step."
         },
         "targets": {
           "type": "array",
@@ -82,7 +86,13 @@
           "properties": {
             "phase": {
               "type": "string",
-              "enum": ["prebuild", "build", "postbuild", "prerelease", "postrelease"],
+              "enum": [
+                "prebuild",
+                "build",
+                "postbuild",
+                "prerelease",
+                "postrelease"
+              ],
               "description": "Build lifecycle phase."
             }
           }
@@ -100,9 +110,19 @@
         "required": ["name", "path", "kind"],
         "properties": {
           "name": { "type": "string", "description": "Library/package name." },
-          "path": { "type": "string", "description": "Relative path to the library root." },
-          "kind": { "type": "string", "enum": ["deno", "rust"], "description": "Library type for publishing." },
-          "publish": { "type": "string", "description": "Publish target (e.g., jsr, crates.io)." }
+          "path": {
+            "type": "string",
+            "description": "Relative path to the library root."
+          },
+          "kind": {
+            "type": "string",
+            "enum": ["deno", "rust"],
+            "description": "Library type for publishing."
+          },
+          "publish": {
+            "type": "string",
+            "description": "Publish target (e.g., jsr, crates.io)."
+          }
         }
       }
     },

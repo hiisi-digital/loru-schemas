@@ -104,6 +104,8 @@ export interface PipelineArtifacts {
 export interface PipelineStepBase {
   name?: string | undefined;
   // Optional label for this pipeline step.
+  description?: string | undefined;
+  // Optional human-friendly description of the step.
   targets?: string[] | undefined;
   // Optional list of plugin/page/lib identifiers this step applies to.
   cmd?: string | undefined;
@@ -115,6 +117,8 @@ export interface PipelineStepBase {
 export interface CheckTask extends PipelineStepBase {
   name?: string | undefined;
   // Optional label for this pipeline step.
+  description?: string | undefined;
+  // Optional human-friendly description of the step.
   targets?: string[] | undefined;
   // Optional list of plugin/page/lib identifiers this step applies to.
   cmd?: string | undefined;
@@ -128,6 +132,8 @@ export interface CheckTask extends PipelineStepBase {
 export interface BuildTask extends PipelineStepBase {
   name?: string | undefined;
   // Optional label for this pipeline step.
+  description?: string | undefined;
+  // Optional human-friendly description of the step.
   targets?: string[] | undefined;
   // Optional list of plugin/page/lib identifiers this step applies to.
   cmd?: string | undefined;
@@ -138,3 +144,6 @@ export interface BuildTask extends PipelineStepBase {
   // Build lifecycle phase.
 }
 
+export interface PipelineStep extends PipelineStepBase {}
+export interface PipelineStepCheck extends CheckTask {}
+export interface PipelineStepBuild extends BuildTask {}

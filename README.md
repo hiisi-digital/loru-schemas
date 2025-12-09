@@ -1,13 +1,18 @@
 # loru-schemas
 
-**Shared data models, database schemas, and migration utilities for the Loru platform.**
+**Shared data models, database schemas, and migration utilities for the Loru
+platform.**
 
-This repository serves as the single source of truth for data structures used across the Loru ecosystem. It generates type-safe bindings for both TypeScript (Deno) and Rust (Axum/SQLx), ensuring consistency between the frontend, backend, and database layers.
+This repository serves as the single source of truth for data structures used
+across the Loru ecosystem. It generates type-safe bindings for both TypeScript
+(Deno) and Rust (Axum/SQLx), ensuring consistency between the frontend, backend,
+and database layers.
 
 ## Features
 
 - **Single Source of Truth** - Define data models once, use everywhere
-- **Code Generation** - Automatic generation of TypeScript interfaces and Rust structs
+- **Code Generation** - Automatic generation of TypeScript interfaces and Rust
+  structs
 - **Database Migrations** - SQLx migrations for PostgreSQL
 - **Type Safety** - Guaranteed consistency between API and database
 
@@ -21,7 +26,7 @@ Import the generated models directly from the repository or package:
 // deno.json
 {
   "imports": {
-    "@loru/schemas": "github:hiisi-digital/loru-schemas@v0.3.2/deno/mod.ts"
+    "@loru/schemas": "github:hiisi-digital/loru-schemas@v0.3.3/deno/mod.ts"
   }
 }
 ```
@@ -74,11 +79,18 @@ loru run gen
 loru dev check
 ```
 
-Common `loru run` tasks are declared in `loru.toml`. Git hooks (`loru dev init githooks`) and build/cache layout (`loru dev init buildsys`) are managed by the shared CLI.
+Common `loru run` tasks are declared in `loru.toml`. Git hooks
+(`loru dev init githooks`) and build/cache layout (`loru dev init buildsys`) are
+managed by the shared CLI.
+
+Lock files live under `.loru/` (e.g., `.loru/Cargo.lock`, `.loru/deno.lock`);
+the Rust manifest references the relocated Cargo lock via metadata, with a
+symlink left at `rust/Cargo.lock` for Cargo tooling.
 
 ## License
 
-This project is licensed under the Mozilla Public License 2.0 - see the [LICENSE](LICENSE) file for details.
+This project is licensed under the Mozilla Public License 2.0 - see the
+[LICENSE](LICENSE) file for details.
 
 ---
 

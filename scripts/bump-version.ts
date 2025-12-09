@@ -29,7 +29,9 @@ async function main() {
   const args = parse(Deno.args);
   const level = args.level as Level | undefined;
   if (!level || !["patch", "minor", "major"].includes(level)) {
-    console.error("Usage: deno run -A scripts/bump-version.ts --level=patch|minor|major");
+    console.error(
+      "Usage: deno run -A scripts/bump-version.ts --level=patch|minor|major",
+    );
     Deno.exit(1);
   }
 

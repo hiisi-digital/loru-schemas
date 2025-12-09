@@ -9,10 +9,12 @@ export interface FetchOptions {
   cacheDir?: string;
 }
 
-const DEFAULT_VERSION = "0.3.2";
+const DEFAULT_VERSION = "0.3.3";
 const DEFAULT_CACHE = ".loru/cache/schemas";
 
-async function readSchemaVersion(metaPath?: string): Promise<string | undefined> {
+async function readSchemaVersion(
+  metaPath?: string,
+): Promise<string | undefined> {
   if (!metaPath) return undefined;
   try {
     const text = await Deno.readTextFile(metaPath);
@@ -41,7 +43,8 @@ async function fileExists(path: string): Promise<boolean> {
 
 export async function fetchSchema(opts: FetchOptions): Promise<string> {
   const { schema } = opts;
-  const version = opts.version ?? (await readSchemaVersion(opts.metaFile)) ?? DEFAULT_VERSION;
+  const version = opts.version ?? (await readSchemaVersion(opts.metaFile)) ??
+    DEFAULT_VERSION;
   const cacheDir = opts.cacheDir ?? DEFAULT_CACHE;
 
   const targetDir = join(cacheDir, version);

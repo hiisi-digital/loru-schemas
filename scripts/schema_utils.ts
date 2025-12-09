@@ -15,6 +15,7 @@ export type JSONSchema = {
   pattern?: string;
 };
 
+/** Convert a dashed/underscored identifier into PascalCase. */
 export function pascalCase(input: string): string {
   return input
     .replace(/[-_]+/g, " ")
@@ -22,23 +23,42 @@ export function pascalCase(input: string): string {
     .replace(/^\w/, (c) => c.toUpperCase());
 }
 
+/** Normalize a $ref of form #/$defs/Name into the def key. */
 export function normalizeRef(ref: string): string | undefined {
   const match = ref.match(/#\/\$defs\/(.+)$/);
   return match ? match[1] : undefined;
 }
 
-export function mergeAllOf(schema: JSONSchema, defs: Record<string, JSONSchema>): JSONSchema {
+/** Merge allOf schemas, resolving nested refs for composed interfaces/structs. */
+export function mergeAllOf(
+  schema: JSONSchema,
+  defs: Record<string, JSONSchema>,
+): JSONSchema {
   if (!schema.allOf?.length) return schema;
-  const merged: JSONSchema = { ...schema, allOf: undefined, properties: {}, required: [] };
+  const merged: JSONSchema = {
+    ...schema,
+    allOf: undefined,
+    properties: {},
+    required: [],
+  };
   for (const part of schema.allOf) {
     const normalized = resolveSchema(part, defs);
-    merged.properties = { ...(merged.properties ?? {}), ...(normalized.properties ?? {}) };
-    merged.required = [...new Set([...(merged.required ?? []), ...(normalized.required ?? [])])];
+    merged.properties = {
+      ...(merged.properties ?? {}),
+      ...(normalized.properties ?? {}),
+    };
+    merged.required = [
+      ...new Set([...(merged.required ?? []), ...(normalized.required ?? [])]),
+    ];
   }
   return merged;
 }
 
-export function resolveSchema(schema: JSONSchema, defs: Record<string, JSONSchema>): JSONSchema {
+/** Resolve a schema by following refs and merging compositions. */
+export function resolveSchema(
+  schema: JSONSchema,
+  defs: Record<string, JSONSchema>,
+): JSONSchema {
   if (schema.$ref) {
     const refName = normalizeRef(schema.$ref);
     if (refName && defs[refName]) return resolveSchema(defs[refName], defs);
@@ -47,10 +67,18 @@ export function resolveSchema(schema: JSONSchema, defs: Record<string, JSONSchem
   return schema;
 }
 
+/**
+ * Load all schemas under ./definitions and expand $defs into concrete
+ * top-level schema entries to simplify code generation.
+ */
 export async function loadSchemas(
   definitionsDir = "./definitions",
-): Promise<Array<{ name: string; schema: JSONSchema; defs: Record<string, JSONSchema> }>> {
-  const result: Array<{ name: string; schema: JSONSchema; defs: Record<string, JSONSchema> }> = [];
+): Promise<
+  Array<{ name: string; schema: JSONSchema; defs: Record<string, JSONSchema> }>
+> {
+  const result: Array<
+    { name: string; schema: JSONSchema; defs: Record<string, JSONSchema> }
+  > = [];
   for await (const entry of Deno.readDir(definitionsDir)) {
     if (!entry.isFile || !entry.name.endsWith(".json")) continue;
     const raw = await Deno.readTextFile(join(definitionsDir, entry.name));
